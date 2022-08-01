@@ -34,14 +34,12 @@ app.config.update(
     CELERY_BACKEND_URL=os.environ.get("CELERY_BACKEND_URL"),
     SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    CELERY_IMPORTS=('tasks', )
 )
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
-# app.config['CELERY_RESULT_BACKEND'] = os.environ['CELERY_RESULT_BACKEND']
 
 
 celery = make_celery(app)
+
 engine = create_engine(os.environ['SQLALCHEMY_DATABASE_URI'])
 
 gc = gspread.service_account(filename='backend/credentials.json')

@@ -47,10 +47,10 @@ services:
       retries: 3
 
   celery:
-    image: python:3.10
+    image: python:3.9
     build: .
     restart: always
-    command: celery worker --loglevel=DEBUG
+    command: celery worker  -A backend.celery --loglevel=DEBUG
     volumes:
        - kanalservic:/var/lib/celery/data/
     environment:
