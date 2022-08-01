@@ -25,11 +25,11 @@ from backend import celery
 
 @app.route('/')
 def route():
-     task = my_background_task.delay(10)
+     print('working')
      return 'hi'
 
 
-@celery.task()
-def my_background_task():
-     print('123')
-     return 'working'
+# @celery.task()
+# def my_background_task():
+#      print('123')
+#      return 'working'

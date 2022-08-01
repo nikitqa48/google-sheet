@@ -9,7 +9,6 @@ import os
 
 app = Flask('kanalservis')
 #app init
-
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
