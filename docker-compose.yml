@@ -1,0 +1,52 @@
+version: '2.1'
+services:
+
+  web:
+    restart: always
+    build: .
+    command: >
+      sh -c "python backend/manage.py"
+    volumes:
+      - flask:/var/lib/flask/data/
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "8000:5000"
+
+  postgres:
+    user: postgres
+    restart: always
+    build:
+      context: ./docker-entrypoint
+      dockerfile: db.Dockerfile
+    volumes:
+      - kanalservic:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6-alpine
+    command: redis-server --requirepass set 1HW5ZwaFufO2zASHJ1O
+
+
+  celery:
+    build: .
+    restart: always
+    command: celery worker
+    volumes:
+       - kanalservic:/var/lib/celery/data/
+    environment:
+      CELERY_BROKER_URL: redis://redis:1HW5ZwaFufO2zASHJ1O@redis:6739/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0.
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  kanalservic:
+  flask:
+

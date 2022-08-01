@@ -1,0 +1,3 @@
+CREATE USER pguser;
+CREATE DATABASE kanalservis;
+GRANT ALL PRIVILEGES ON DATABASE kanalservis TO pguser;
