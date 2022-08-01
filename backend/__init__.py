@@ -20,7 +20,7 @@ celery.conf.update(app.config)
 
 engine = create_engine(os.environ['SQLALCHEMY_DATABASE_URI'])
 
-gc = gspread.service_account(filename='test/credentials.json')
+gc = gspread.service_account(filename='backend/credentials.json')
 #connect to google sheets
 
 gsheet = gc.open_by_key(os.environ['GSHEET_FILE_KEY'])
