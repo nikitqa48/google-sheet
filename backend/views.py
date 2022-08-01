@@ -1,8 +1,9 @@
-from backend import app, db
+from backend import app, db, celery
 from .models import Result
 from backend import gsheet
 import pandas as pd
 from backend import celery
+from celery import task
 
 # @app.route('/')
 # def params():
@@ -25,11 +26,11 @@ from backend import celery
 
 @app.route('/')
 def route():
-     print('working')
+     my_background_task.delay()
      return 'hi'
 
 
-# @celery.task()
-# def my_background_task():
-#      print('123')
-#      return 'working'
+@celery.task()
+def my_background_task(bind=True):
+     print('123')
+     return 'working'

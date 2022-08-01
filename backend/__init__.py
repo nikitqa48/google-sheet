@@ -6,17 +6,42 @@ from flask_sqlalchemy import SQLAlchemy
 from cbr import get_exchange_rates
 from celery import Celery
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        backend=app.config["CELERY_BACKEND_URL"],
+        broker=app.config["CELERY_BROKER_URL"],
+    )
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
 
 app = Flask('kanalservis')
 #app init
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
-app.config['CELERY_RESULT_BACKEND'] = os.environ['CELERY_RESULT_BACKEND']
+app.config.update(
+    CELERY_BROKER_URL=os.environ.get("CELERY_BROKER_URL"),
+    CELERY_BACKEND_URL=os.environ.get("CELERY_BACKEND_URL"),
+    SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+)
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
+# app.config['CELERY_RESULT_BACKEND'] = os.environ['CELERY_RESULT_BACKEND']
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
 
+celery = make_celery(app)
 engine = create_engine(os.environ['SQLALCHEMY_DATABASE_URI'])
 
 gc = gspread.service_account(filename='backend/credentials.json')
@@ -31,6 +56,8 @@ course_today = get_exchange_rates(date_now, symbols=['USD', 'RUB'])
 
 db = SQLAlchemy(app)
 #db init
+
+
 from backend import views, models
 
 db.create_all()
