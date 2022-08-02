@@ -1,0 +1,1 @@
+COPY ./docker-entrypoint.sh /

@@ -4,41 +4,14 @@ from sqlalchemy import create_engine
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from cbr import get_exchange_rates
-from celery import Celery
 import os
-from dotenv import load_dotenv
+from apscheduler.schedulers.background import BackgroundScheduler
 
-
-load_dotenv()
-
-def make_celery(app):
-    celery = Celery(
-        app.import_name,
-        backend=app.config["CELERY_BACKEND_URL"],
-        broker=app.config["CELERY_BROKER_URL"],
-    )
-    celery.conf.update(app.config)
-
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
 
 app = Flask('kanalservis')
-#app init
-app.config.update(
-    CELERY_BROKER_URL=os.environ.get("CELERY_BROKER_URL"),
-    CELERY_BACKEND_URL=os.environ.get("CELERY_BACKEND_URL"),
-    SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    CELERY_IMPORTS=('tasks', )
-)
-
-
-celery = make_celery(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+sched = BackgroundScheduler(daemon=True)
 
 engine = create_engine(os.environ['SQLALCHEMY_DATABASE_URI'])
 

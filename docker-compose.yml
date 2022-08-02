@@ -4,12 +4,10 @@ services:
   web:
     restart: always
     build: .
+    volumes:
+      - .:/app
     command: >
       sh -c "python backend/manage.py"
-    volumes:
-      - type: bind
-        source: .
-        target: /backend
     env_file:
       - .env
     depends_on:
@@ -30,36 +28,6 @@ services:
     ports:
       - "5432:5432"
 
-  rabbitmq:
-    image: rabbitmq:3-alpine
-    ports:
-      - '5673:5672'
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: 1HW5ZwaFufO2zASHJ1O
-      RABBITMQ_DEFAULT_VHOST: 0
-      RABBITMQ_NODE_PORT: 5672
-
-    healthcheck:
-      test: [ 'CMD', 'rabbitmqctl', 'status' ]
-      interval: 30s
-      timeout: 15s
-      retries: 3
-
-  celery:
-    image: python:3.9
-    build: .
-    restart: always
-    command: celery worker  -A backend.celery --loglevel=DEBUG
-    volumes:
-       - kanalservic:/var/lib/celery/data/
-    environment:
-      CELERY_BROKER_URL: amqp://user:1HW5ZwaFufO2zASHJ1O@rabbitmq:5672/0
-      CELERY_RESULT_BACKEND: amqp://user@rabbitmq:5672/0
-    depends_on:
-      - db
-      - rabbitmq
-
 volumes:
   kanalservic:
-
+  flask:
