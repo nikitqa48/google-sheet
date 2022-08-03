@@ -1,1 +1,3 @@
-COPY ./docker-entrypoint.sh /
+
+COPY .init_flask.sh .
+RUN ./init_flask.sh

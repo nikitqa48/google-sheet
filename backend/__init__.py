@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from cbr import get_exchange_rates
 import os
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_migrate import Migrate
 
 
 app = Flask('kanalservis')
@@ -26,6 +27,7 @@ date_now = today.strftime('%d/%m/%Y"').replace('/', '.')
 course_today = get_exchange_rates(date_now, symbols=['USD', 'RUB'])
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 #db init
 
 
